@@ -97,6 +97,27 @@ namespace Better_Etch_O_Sketch
             SendData(data);
         }
 
+        int ReadAnalogOne()
+        {
+            byte[] data = {0x51};
+            byte[] response = SendData(data);
+            if (response.Length == 2)
+            {
+                return (response[0] << 2) + (response[1] >> 6);
+            }
+            return -1;
+        }
+        int ReadAnalogTwo()
+        {
+            byte[] data = {0x52};
+            byte[] response = SendData(data);
+            if (response.Length == 2)
+            {
+                return  (response[0] << 2) + (response[1] >> 6) ;
+            }
+            return -1;
+        }
+
         byte[] ReadAnalog(byte analogInputs)
         {
             byte command = 0x50;
@@ -142,7 +163,11 @@ namespace Better_Etch_O_Sketch
             {
                 SerialConnect();
             }
-            ReadAnalog(0x02);
+            //ReadAnalog(0x02);
+            while (true)
+            {
+                Console.WriteLine($"{ReadAnalogOne().ToString().PadLeft(5)}{ReadAnalogTwo().ToString().PadLeft(5)}");
+            }
         }
 
         private void PortComboBox_SelectedIndexChanged(object sender, EventArgs e)
