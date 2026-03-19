@@ -19,25 +19,30 @@ namespace Better_Etch_O_Sketch
         public Form1()
         {
             InitializeComponent();
-            PortCombo();
+            //PortCombo();
+            GetQYAtBoards();
         }
 
         //Program Logic----------------------------------------------------------------------------------------------------------------
+        string[] Ports;
         void PortCombo()
         {
+            Ports = SerialPort.GetPortNames();
             PortComboBox.Items.Clear();
-            for (int num = 1; num < 9; num++)
+            foreach (string r in Ports)
             {
-                PortComboBox.Items.Add($"COM{num}");
+                PortComboBox.Items.Add($"{r}");
+            }
+            if (PortComboBox.Items.Count > 0) 
+            {
+                PortComboBox.SelectedIndex = 0;
             }
         }
-
-        void SerialConnect()
+        void SerialConnect(string name)
         {
             serialPort1.Close();
-            string port = PortComboBox.Text;
-            serialPort1.BaudRate = 9600;
-            serialPort1.PortName = port;
+            serialPort1.BaudRate = 115200;
+            serialPort1.PortName = name;
             serialPort1.Parity = System.IO.Ports.Parity.None;
             //serialPort1.StopBits = System.IO.Ports.StopBits.None;
             try
@@ -45,13 +50,13 @@ namespace Better_Etch_O_Sketch
                 serialPort1.Open();
                 if (serialPort1.IsOpen)
                 {
-                    MessageBox.Show($"{serialPort1.PortName} Connected Successfully");
+                    //MessageBox.Show($"{serialPort1.PortName} Connected Successfully");
                 }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                //MessageBox.Show(ex.Message);
             }
             IsQYAtBoardCheck();
             //ConnectButton.Enabled = false;
@@ -78,6 +83,25 @@ namespace Better_Etch_O_Sketch
             return buffer;
         }
 
+        void GetQYAtBoards() 
+        {
+            PortComboBox.Items.Clear();
+            string[] names = SerialPort.GetPortNames();
+            foreach (string name in names)
+            {
+                SerialConnect(name);
+                if (IsQYAtBoardCheck()) 
+                { 
+                    PortComboBox.Items.Add(name);
+                }
+            }
+            if (PortComboBox.Items.Count > 0)
+            {
+                PortComboBox.SelectedIndex = 0;
+            }
+        }
+
+
         bool IsQYAtBoardCheck()
         {
             bool QYAt = false;
@@ -85,7 +109,7 @@ namespace Better_Etch_O_Sketch
             byte[] ReadBuffer = SendData(QyAtSettings);
             if (ReadBuffer.Length == 64 && ReadBuffer[58] == 81 && ReadBuffer[59] == 121 && ReadBuffer[60] == 64)
             {
-                MessageBox.Show($"QY@ Board Connected  to {serialPort1.PortName}");
+                //MessageBox.Show($"QY@ Board Connected  to {serialPort1.PortName}");
                 QYAt = true;
             }
             return QYAt;
@@ -161,13 +185,21 @@ namespace Better_Etch_O_Sketch
             }
             else
             {
-                SerialConnect();
+                SerialConnect(PortComboBox.SelectedItem.ToString());
+            }
+            if (serialPort1.IsOpen) 
+            {
+                PortStatusLabel.Text = serialPort1.PortName;
+            }
+            else 
+            {
+                PortStatusLabel.Text = "None";
             }
             //ReadAnalog(0x02);
-            while (true)
-            {
-                Console.WriteLine($"{ReadAnalogOne().ToString().PadLeft(5)}{ReadAnalogTwo().ToString().PadLeft(5)}");
-            }
+            //while (true)
+            //{
+            //    Console.WriteLine($"{ReadAnalogOne().ToString().PadLeft(5)}{ReadAnalogTwo().ToString().PadLeft(5)}");
+            //}
         }
 
         private void PortComboBox_SelectedIndexChanged(object sender, EventArgs e)
