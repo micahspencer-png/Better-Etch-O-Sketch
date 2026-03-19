@@ -58,33 +58,41 @@ namespace Better_Etch_O_Sketch
             {
                 //MessageBox.Show(ex.Message);
             }
-            IsQYAtBoardCheck();
             //ConnectButton.Enabled = false;
         }
         byte[] SendData(byte[] data)
         {
             byte[] buffer = new byte[0];
-            if (serialPort1.IsOpen)
+            try
             {
-                //flush old bytes from buffers
-                serialPort1.DiscardInBuffer();
-                serialPort1.DiscardOutBuffer();
+                
+                if (serialPort1.IsOpen)
+                {
+                    //flush old bytes from buffers
+                    serialPort1.DiscardInBuffer();
+                    serialPort1.DiscardOutBuffer();
 
-                //send command
-                serialPort1.Write(data, 0, data.Length);
+                    //send command
+                    serialPort1.Write(data, 0, data.Length);
 
-                //wait for response
-                Thread.Sleep(100);
-                //make the array the size of the input buffer
-                buffer = new byte[serialPort1.BytesToRead];
-                //actually read the input buffer
-                serialPort1.Read(buffer, 0, buffer.Length);
+                    //wait for response
+                    Thread.Sleep(100);
+                    //make the array the size of the input buffer
+                    buffer = new byte[serialPort1.BytesToRead];
+                    //actually read the input buffer
+                    serialPort1.Read(buffer, 0, buffer.Length);
+                }
+                return buffer;
             }
-            return buffer;
+            catch 
+            {
+                return buffer;
+            }
         }
 
         void GetQYAtBoards() 
         {
+            PortComboBox.Text = "";
             PortComboBox.Items.Clear();
             string[] names = SerialPort.GetPortNames();
             foreach (string name in names)
@@ -99,6 +107,7 @@ namespace Better_Etch_O_Sketch
             {
                 PortComboBox.SelectedIndex = 0;
             }
+            serialPort1.Close();
         }
 
 
@@ -171,22 +180,8 @@ namespace Better_Etch_O_Sketch
             return response;
         }
 
-        //Event Handler--------------------------------------------------------------------------------------------------------------
-        private void ExitButton_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void ConnectButton_Click(object sender, EventArgs e)
-        {
-            if (PortComboBox.SelectedItem == null)
-            {
-                MessageBox.Show("Select Port");
-            }
-            else
-            {
-                SerialConnect(PortComboBox.SelectedItem.ToString());
-            }
+        void UpdateStatus() 
+        { 
             if (serialPort1.IsOpen) 
             {
                 PortStatusLabel.Text = serialPort1.PortName;
@@ -195,6 +190,17 @@ namespace Better_Etch_O_Sketch
             {
                 PortStatusLabel.Text = "None";
             }
+        }
+
+        //Event Handler--------------------------------------------------------------------------------------------------------------
+        private void ExitButton_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            SerialConnect(PortComboBox.SelectedItem.ToString());
             //ReadAnalog(0x02);
             //while (true)
             //{
@@ -205,6 +211,25 @@ namespace Better_Etch_O_Sketch
         private void PortComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ConnectButton.Enabled = true;
+        }
+
+        private void StatusTimer_Tick(object sender, EventArgs e)
+        {
+            UpdateStatus();
+        }
+
+        private void AnalogTimer_Tick(object sender, EventArgs e)
+        {
+            Analog1StatusLabel.Text = ReadAnalogOne().ToString();
+            Analog2StatusLabel.Text = ReadAnalogTwo().ToString();
+        }
+
+        private void RefreshTimer_Tick(object sender, EventArgs e)
+        {
+            if (serialPort1.IsOpen == false)
+            {
+                GetQYAtBoards();
+            }
         }
     }
 }
