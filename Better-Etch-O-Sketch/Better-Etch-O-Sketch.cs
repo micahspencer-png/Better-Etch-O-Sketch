@@ -21,6 +21,7 @@ namespace Better_Etch_O_Sketch
             InitializeComponent();
             //PortCombo();
             GetQYAtBoards();
+            ClearDrawing();
         }
         Color penColor = Color.Black;
         int penWidth = 1;
@@ -28,6 +29,7 @@ namespace Better_Etch_O_Sketch
         bool isDrawing = false;
         Point PreviousPoint;
         bool trueClear = false;
+        bool mouseDraw = true;
         //Program Logic----------------------------------------------------------------------------------------------------------------
         string[] Ports;
         void PortCombo()
@@ -219,15 +221,17 @@ namespace Better_Etch_O_Sketch
             DisplayPictureBox.Image = bmp;
 
             Graphics grid = Graphics.FromImage(DisplayPictureBox.Image);
-            Pen thePen = new Pen(this.penColor, this.penWidth);
+            Pen thePen = new Pen(Color.Black, this.penWidth);
             Pen Pen1 = new Pen(Color.Red, this.penWidth);
             Pen Pen2 = new Pen(Color.Green, this.penWidth);
             Pen Pen3 = new Pen(Color.Blue, this.penWidth);
 
             for (int i = 1; i < 10; i++)
             {
-                grid.DrawLine(thePen, i * 99, 0, i * 99, 550);
-                grid.DrawLine(thePen, 0, i * 56, 990, i * 56);
+                int h = DisplayPictureBox.Height/10;
+                int w = DisplayPictureBox.Width/10;
+                grid.DrawLine(thePen, i * w, 0, i * w, 10*h);
+                grid.DrawLine(thePen, 0, i * h, 10*w, i * h);
                 DisplayPictureBox.Invalidate();
             }
 
@@ -241,9 +245,9 @@ namespace Better_Etch_O_Sketch
 
         private void WaveShape(int waveShape, Pen draw)
         {
-            int Amplitude = 275;
-            double Frequency = 0.00636;
-            int OffsetY = 280;
+            int Amplitude = DisplayPictureBox.Height/2;
+            double Frequency = (2 * Math.PI) / DisplayPictureBox.Width;
+            int OffsetY = DisplayPictureBox.Height/2;
             string Text = "";
             int height = 0;
             Color color = Color.White;
@@ -272,7 +276,16 @@ namespace Better_Etch_O_Sketch
 
                 if (waveShape == 2)
                 {
-                    y = Amplitude * Math.Tan(Frequency * x);
+                    double raw = Math.Tan(Frequency * x);
+                    if (raw > 10)
+                    {
+                        raw = 10;
+                    }
+                    if (raw < -10)
+                    {
+                        raw = -10;
+                    }
+                    y = Amplitude * raw;
                     Text = "Tangent Wave";
                     height = 470;
                     color = Color.Blue;
@@ -408,8 +421,6 @@ namespace Better_Etch_O_Sketch
 
         private void GraphicsDesign_MouseMove(object sender, MouseEventArgs e)
         {
-
-
             if (e.Button == MouseButtons.Middle)
             {
                 SelectColor();
@@ -418,13 +429,16 @@ namespace Better_Etch_O_Sketch
         }
         private void Picture_MouseDown(object sender, MouseEventArgs e)
         {
-            isDrawing = true;
-            PreviousPoint = e.Location;
+            if (mouseDraw == true)
+            {
+                isDrawing = true;
+                PreviousPoint = e.Location;
+            }
         }
 
         private void Picture_MouseMovement(object sender, MouseEventArgs e)
         {
-            if (isDrawing == true)
+            if (isDrawing == true && mouseDraw == true)
             {
                 Point XY = e.Location;
 
@@ -444,11 +458,22 @@ namespace Better_Etch_O_Sketch
             isDrawing = false;
         }
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void infoToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            MessageBox.Show("Micah Spencer\n    RCET 2265\n    Fall 2025\n    Etch-O-Sketch Program\n    https://github.com/micahspencer-png/EtchOSketch.git");
+            MessageBox.Show("Micah Spencer\n    RCET 3371\n    Spring 2026\n    Better Etch-O-Sketch Program\n    https://github.com/micahspencer-png/EtchOSketch.git");
+        }
+
+        private void MouseRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (MouseRadioButton.Checked == true) 
+            { 
+                mouseDraw = true;
+            }
+            if (ExternalRadioButton.Checked == true)
+            {
+                mouseDraw = false;
+            }
         }
     }
-}
 }

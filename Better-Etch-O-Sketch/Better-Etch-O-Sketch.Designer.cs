@@ -44,12 +44,20 @@
             this.ExternalRadioButton = new System.Windows.Forms.RadioButton();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.DrawGroupBox = new System.Windows.Forms.GroupBox();
-            this.ConnectGroupBox = new System.Windows.Forms.GroupBox();
-            this.ColorButton = new System.Windows.Forms.Button();
-            this.WaveFormButton = new System.Windows.Forms.Button();
             this.ClearButton = new System.Windows.Forms.Button();
+            this.WaveFormButton = new System.Windows.Forms.Button();
+            this.ColorButton = new System.Windows.Forms.Button();
+            this.ConnectGroupBox = new System.Windows.Forms.GroupBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.changeColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.drawWaveformsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DisplayPictureBox)).BeginInit();
             this.DrawGroupBox.SuspendLayout();
@@ -140,9 +148,12 @@
             // 
             this.DisplayPictureBox.Location = new System.Drawing.Point(12, 32);
             this.DisplayPictureBox.Name = "DisplayPictureBox";
-            this.DisplayPictureBox.Size = new System.Drawing.Size(803, 472);
+            this.DisplayPictureBox.Size = new System.Drawing.Size(800, 470);
             this.DisplayPictureBox.TabIndex = 4;
             this.DisplayPictureBox.TabStop = false;
+            DisplayPictureBox.MouseDown += Picture_MouseDown;
+            DisplayPictureBox.MouseMove += Picture_MouseMovement;
+            DisplayPictureBox.MouseUp += Picture_MouseUp;
             // 
             // MouseRadioButton
             // 
@@ -154,6 +165,7 @@
             this.MouseRadioButton.TabStop = true;
             this.MouseRadioButton.Text = "Mouse";
             this.MouseRadioButton.UseVisualStyleBackColor = true;
+            this.MouseRadioButton.CheckedChanged += new System.EventHandler(this.MouseRadioButton_CheckedChanged);
             // 
             // ExternalRadioButton
             // 
@@ -179,26 +191,15 @@
             this.DrawGroupBox.TabIndex = 6;
             this.DrawGroupBox.TabStop = false;
             // 
-            // ConnectGroupBox
+            // ClearButton
             // 
-            this.ConnectGroupBox.Controls.Add(this.PortComboBox);
-            this.ConnectGroupBox.Controls.Add(this.ConnectButton);
-            this.ConnectGroupBox.Controls.Add(this.ExitButton);
-            this.ConnectGroupBox.Location = new System.Drawing.Point(820, 333);
-            this.ConnectGroupBox.Name = "ConnectGroupBox";
-            this.ConnectGroupBox.Size = new System.Drawing.Size(124, 188);
-            this.ConnectGroupBox.TabIndex = 7;
-            this.ConnectGroupBox.TabStop = false;
-            // 
-            // ColorButton
-            // 
-            this.ColorButton.Location = new System.Drawing.Point(13, 88);
-            this.ColorButton.Name = "ColorButton";
-            this.ColorButton.Size = new System.Drawing.Size(98, 55);
-            this.ColorButton.TabIndex = 6;
-            this.ColorButton.Text = "C&olor";
-            this.ColorButton.UseVisualStyleBackColor = true;
-            this.ColorButton.Click += new System.EventHandler(this.ColorButton_Click);
+            this.ClearButton.Location = new System.Drawing.Point(12, 210);
+            this.ClearButton.Name = "ClearButton";
+            this.ClearButton.Size = new System.Drawing.Size(98, 55);
+            this.ClearButton.TabIndex = 6;
+            this.ClearButton.Text = "C&lear";
+            this.ClearButton.UseVisualStyleBackColor = true;
+            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
             // 
             // WaveFormButton
             // 
@@ -210,32 +211,102 @@
             this.WaveFormButton.UseVisualStyleBackColor = true;
             this.WaveFormButton.Click += new System.EventHandler(this.WaveFormButton_Click);
             // 
-            // ClearButton
+            // ColorButton
             // 
-            this.ClearButton.Location = new System.Drawing.Point(12, 210);
-            this.ClearButton.Name = "ClearButton";
-            this.ClearButton.Size = new System.Drawing.Size(98, 55);
-            this.ClearButton.TabIndex = 6;
-            this.ClearButton.Text = "C&lear";
-            this.ClearButton.UseVisualStyleBackColor = true;
-            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            this.ColorButton.Location = new System.Drawing.Point(13, 88);
+            this.ColorButton.Name = "ColorButton";
+            this.ColorButton.Size = new System.Drawing.Size(98, 55);
+            this.ColorButton.TabIndex = 6;
+            this.ColorButton.Text = "C&olor";
+            this.ColorButton.UseVisualStyleBackColor = true;
+            this.ColorButton.Click += new System.EventHandler(this.ColorButton_Click);
+            // 
+            // ConnectGroupBox
+            // 
+            this.ConnectGroupBox.Controls.Add(this.PortComboBox);
+            this.ConnectGroupBox.Controls.Add(this.ConnectButton);
+            this.ConnectGroupBox.Controls.Add(this.ExitButton);
+            this.ConnectGroupBox.Location = new System.Drawing.Point(820, 333);
+            this.ConnectGroupBox.Name = "ConnectGroupBox";
+            this.ConnectGroupBox.Size = new System.Drawing.Size(124, 188);
+            this.ConnectGroupBox.TabIndex = 7;
+            this.ConnectGroupBox.TabStop = false;
             // 
             // menuStrip1
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem,
+            this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(948, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(948, 30);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectToolStripMenuItem,
+            this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
-            this.fileToolStripMenuItem.Text = "File";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
+            this.fileToolStripMenuItem.Text = "&File";
+            // 
+            // connectToolStripMenuItem
+            // 
+            this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.connectToolStripMenuItem.Text = "Connect";
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
+            this.exitToolStripMenuItem.Text = "Exit";
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.changeColorToolStripMenuItem,
+            this.drawWaveformsToolStripMenuItem,
+            this.clearImageToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(49, 26);
+            this.editToolStripMenuItem.Text = "&Edit";
+            // 
+            // changeColorToolStripMenuItem
+            // 
+            this.changeColorToolStripMenuItem.Name = "changeColorToolStripMenuItem";
+            this.changeColorToolStripMenuItem.Size = new System.Drawing.Size(205, 26);
+            this.changeColorToolStripMenuItem.Text = "Change Color";
+            // 
+            // drawWaveformsToolStripMenuItem
+            // 
+            this.drawWaveformsToolStripMenuItem.Name = "drawWaveformsToolStripMenuItem";
+            this.drawWaveformsToolStripMenuItem.Size = new System.Drawing.Size(205, 26);
+            this.drawWaveformsToolStripMenuItem.Text = "Draw Waveforms";
+            // 
+            // clearImageToolStripMenuItem
+            // 
+            this.clearImageToolStripMenuItem.Name = "clearImageToolStripMenuItem";
+            this.clearImageToolStripMenuItem.Size = new System.Drawing.Size(205, 26);
+            this.clearImageToolStripMenuItem.Text = "Clear Image";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.infoToolStripMenuItem});
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(64, 26);
+            this.aboutToolStripMenuItem.Text = "&About";
+            // 
+            // infoToolStripMenuItem
+            // 
+            this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
+            this.infoToolStripMenuItem.Size = new System.Drawing.Size(118, 26);
+            this.infoToolStripMenuItem.Text = "Info";
             // 
             // Form1
             // 
@@ -288,6 +359,14 @@
         private System.Windows.Forms.GroupBox ConnectGroupBox;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem changeColorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem drawWaveformsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearImageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 
