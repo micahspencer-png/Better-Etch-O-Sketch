@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Better_Etch_O_Sketch.Properties;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,6 +7,7 @@ using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
 using System.Management.Instrumentation;
+using System.Media;
 using System.Text;
 using System.Threading;
 //using System.Threading.
@@ -16,12 +18,13 @@ namespace Better_Etch_O_Sketch
     public partial class Form1 : Form
     {
         SerialPort serialPort1 = new SerialPort();
+        SoundPlayer shaker = new SoundPlayer(soundLocation: "..\\..\\Resources\\shaker.wav");
         public Form1()
         {
             InitializeComponent();
-            //PortCombo();
             GetQYAtBoards();
             ClearDrawing();
+            shaker.LoadAsync();
         }
         Color penColor = Color.Black;
         int penWidth = 1;
@@ -31,20 +34,7 @@ namespace Better_Etch_O_Sketch
         bool trueClear = false;
         bool mouseDraw = true;
         //Program Logic----------------------------------------------------------------------------------------------------------------
-        string[] Ports;
-        void PortCombo()
-        {
-            Ports = SerialPort.GetPortNames();
-            PortComboBox.Items.Clear();
-            foreach (string r in Ports)
-            {
-                PortComboBox.Items.Add($"{r}");
-            }
-            if (PortComboBox.Items.Count > 0) 
-            {
-                PortComboBox.SelectedIndex = 0;
-            }
-        }
+        
         void SerialConnect(string name)
         {
             serialPort1.Close();
@@ -83,7 +73,7 @@ namespace Better_Etch_O_Sketch
                     serialPort1.Write(data, 0, data.Length);
 
                     //wait for response
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                     //make the array the size of the input buffer
                     buffer = new byte[serialPort1.BytesToRead];
                     //actually read the input buffer
@@ -262,7 +252,7 @@ namespace Better_Etch_O_Sketch
                 {
                     y = Amplitude * Math.Sin(Frequency * x);
                     Text = "Sine Wave";
-                    height = 420;
+                    height = DisplayPictureBox.Height - 70;
                     color = Color.Red;
                 }
 
@@ -270,7 +260,7 @@ namespace Better_Etch_O_Sketch
                 {
                     y = Amplitude * Math.Cos(Frequency * x);
                     Text = "Cosine Wave";
-                    height = 445;
+                    height = DisplayPictureBox.Height -50;
                     color = Color.Green;
                 }
 
@@ -287,7 +277,7 @@ namespace Better_Etch_O_Sketch
                     }
                     y = Amplitude * raw;
                     Text = "Tangent Wave";
-                    height = 470;
+                    height = DisplayPictureBox.Height-30;
                     color = Color.Blue;
                 }
 
@@ -303,7 +293,7 @@ namespace Better_Etch_O_Sketch
             Font drawFont = new Font("Times New Roman", 18);
             SolidBrush drawBrush = new SolidBrush(color);
 
-            g.DrawString(Text, drawFont, drawBrush, 0, height);
+            g.DrawString(Text, drawFont, drawBrush, DisplayPictureBox.Width/80, height);
 
             g.Dispose();
             drawBrush.Dispose();
@@ -329,10 +319,12 @@ namespace Better_Etch_O_Sketch
         {
             if (trueClear == true)
             {
+                shaker.Play();
+                System.Threading.Thread.Sleep(400);
                 for (int i = 0; i < 10; i++)
                 {
-                    int xOffset = 10;
-                    int yOffset = 10;
+                    int xOffset = 25;
+                    int yOffset = 25;
                     if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9)
                     {
                         xOffset *= -1;
@@ -349,7 +341,7 @@ namespace Better_Etch_O_Sketch
                     this.Top = NewY;
                     this.Left = NewX;
 
-                    System.Threading.Thread.Sleep(70);
+                    System.Threading.Thread.Sleep(250);
                 }
             }
             Bitmap bmp = new Bitmap(DisplayPictureBox.Width, DisplayPictureBox.Height);
@@ -372,11 +364,6 @@ namespace Better_Etch_O_Sketch
         private void ConnectButton_Click(object sender, EventArgs e)
         {
             SerialConnect(PortComboBox.SelectedItem.ToString());
-            //ReadAnalog(0x02);
-            //while (true)
-            //{
-            //    Console.WriteLine($"{ReadAnalogOne().ToString().PadLeft(5)}{ReadAnalogTwo().ToString().PadLeft(5)}");
-            //}
         }
 
         private void PortComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -461,7 +448,7 @@ namespace Better_Etch_O_Sketch
         private void infoToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            MessageBox.Show("Micah Spencer\n    RCET 3371\n    Spring 2026\n    Better Etch-O-Sketch Program\n    https://github.com/micahspencer-png/EtchOSketch.git");
+            MessageBox.Show("Micah Spencer\n    RCET 3371\n    Spring 2026\n    Better Etch-O-Sketch Program\n    https://github.com/micahspencer-png/Better-Etch-O-Sketch.git");
         }
 
         private void MouseRadioButton_CheckedChanged(object sender, EventArgs e)
@@ -473,6 +460,22 @@ namespace Better_Etch_O_Sketch
             if (ExternalRadioButton.Checked == true)
             {
                 mouseDraw = false;
+            }
+        }
+
+        private void VALUE_CHANGE(object sender, EventArgs e) 
+        {
+            RefreshTimer.Enabled = false;
+            if (mouseDraw == false && serialPort1.IsOpen == true) 
+            {
+                Point QYAT = new Point(0, 0);
+                QYAT.X = DisplayPictureBox.Width * int.Parse(Analog1StatusLabel.Text)/1024;
+                QYAT.Y = DisplayPictureBox.Height * int.Parse(Analog2StatusLabel.Text)/1024;
+                Sketch(QYAT);
+            }
+            if (serialPort1.IsOpen == false) 
+            {
+                RefreshTimer.Enabled = true;
             }
         }
     }
